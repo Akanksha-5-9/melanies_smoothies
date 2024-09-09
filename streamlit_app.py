@@ -15,6 +15,17 @@ st.write("The name on your Smoothie will be:", name_on_order)
 
 cnx = st.connection("Snowflake")
 session = cnx.session()
+cnx = snowflake.connector.connect(
+    user=snowflake_credentials["SALUNKHEAKANKSHA23"],
+    password=snowflake_credentials["HariOm@23"],
+    account=snowflake_credentials["BNYSQPU-ID92342"],
+    warehouse=snowflake_credentials["COMPUTE_WH"],
+    database=snowflake_credentials["SMOOTHIES"],
+    schema=snowflake_credentials["PUBLIC"],
+    role=snowflake_credentials["ACCOUNTADMIN"],
+    client_session_keep_alive=snowflake_credentials["client_session_keep_alive"]
+)
+
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
 #st.dataframe(data=my_dataframe, use_container_width=True)
 
