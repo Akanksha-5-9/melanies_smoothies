@@ -14,13 +14,13 @@ snowflake_credentials = st.secrets["connections"]["snowflake"]
 
 # Establishing connection to Snowflake
 conn = snowflake.connector.connect(
+    account=snowflake_credentials["BNYSQPU-ID92342"],
     user=snowflake_credentials["SALUNKHEAKANKSHA23"],
     password=snowflake_credentials["HariOm@23"],
-    account=snowflake_credentials["BNYSQPU-ID92342"],
+     role=snowflake_credentials["ACCOUNTADMIN"],
     warehouse=snowflake_credentials["COMPUTE_WH"],
     database=snowflake_credentials["SMOOTHIES"],
     schema=snowflake_credentials["PUBLIC"],
-    role=snowflake_credentials["ACCOUNTADMIN"],
     client_session_keep_alive=snowflake_credentials["client_session_keep_alive"]
 )
 
