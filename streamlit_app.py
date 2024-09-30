@@ -1,54 +1,64 @@
+# Import python packages
 import streamlit as st
+from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
-import snowflake.connector
 
 # Write directly to the app
-st.title(":cup_with_straw: Customize Your Smoothie :cup_with_straw:")
-st.write("Choose the fruits you want in your custom smoothie!")
-
-name_on_order = st.text_input("Name on Smoothie:")
-st.write("The name on your Smoothie will be:", name_on_order)
-
-# Accessing Snowflake credentials from secrets
-snowflake_credentials = st.secrets["connections"]["snowflake"]
-
-# Establishing connection to Snowflake
-conn = snowflake.connector.connect(
-    account=snowflake_credentials["BNYSQPU-ID92342"],
-    user=snowflake_credentials["SALUNKHEAKANKSHA23"],
-    password=snowflake_credentials["HariOm@23"],
-     role=snowflake_credentials["ACCOUNTADMIN"],
-    warehouse=snowflake_credentials["COMPUTE_WH"],
-    database=snowflake_credentials["SMOOTHIES"],
-    schema=snowflake_credentials["PUBLIC"],
-    client_session_keep_alive=snowflake_credentials["client_session_keep_alive"]
+st.title("🥛Customize Your Smoothie!🥛")
+st.write(
+    "Choose the fruits you want in your custom Smoothie!"
 )
 
-session = conn.cursor()
+# option = st.selectbox(
+#     "How would you like to be contacted",
+#     ('Email', 'Home phone', 'Mobile phone')
+# )
 
+# st.write('Your selected', option)
+
+# fruit_option = st.selectbox(
+#     "What is your favorite Fruit?",
+#     ('Banana', 'Strawberries', 'Peaches')
+# )
+
+# st.write('Your Favorite Fruit is: ', fruit_option)
+
+session = get_active_session()
+# st.write(session)
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
 # st.dataframe(data=my_dataframe, use_container_width=True)
 
+
+name_on_order = st.text_input("Name on Smoothie:")
+st.write("The name in your Smoothie will be: ", name_on_order)
+
+
+
+# list data type
 ingredients_list = st.multiselect(
-    'Choose up to 5 ingredients:',
-    my_dataframe,
-    max_selections=5
+ 'Choose up to 5 ingredients: ',  my_dataframe, max_selections = 5
 )
 
+
 if ingredients_list:
-    ingredients_string = ', '.join(ingredients_list)
+    ingredients_string = ''
+#     st.write("You selected:", ingredients_list)
+#     st.text(ingredients_list)
+    for element in ingredients_list:
+        ingredients_string += element + ' '
+    # st.write(ingredients_string)
 
-    my_insert_stmt = f"""
-    INSERT INTO smoothies.public.orders (ingredients, name_on_order)
-    VALUES ('{ingredients_string}', '{name_on_order}')
-    """
-
+    my_insert_stmt = """ insert into smoothies.public.orders(ingredients, name_on_order)
+                values ('"""\
+                + ingredients_string + """','""" + name_on_order + """'
+                )"""
+    # st.write(my_insert_stmt)
+    # st.stop()
+    
     time_to_insert = st.button('Submit Order')
-
+        
+    # st.write(my_insert_stmt)
+    
     if time_to_insert:
-        session.execute(my_insert_stmt)
-        st.success(f'Your Smoothie is ordered, {name_on_order}!', icon="✅")
-
-import requests
-fruityvice_response = requests.get("https://fruityvice.com/api/fruit/watermelon")
-st.text(fruityvice_response.json())
+        session.sql(my_insert_stmt).collect()
+        st.success('Your Smoothie is ordered!', icon="✅")
